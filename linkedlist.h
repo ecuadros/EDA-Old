@@ -100,7 +100,7 @@ class iterator
     iterator(LinkedList<T>::Node *pNode) : m_pNode(pNode) {}
     bool operator==(iterator &iter)       { return m_pNode == iter.m_pNode; }
     bool operator!=(iterator &iter)       { return m_pNode != iter.m_pNode; }
-    T operator*()                         { return m_pNode->getData();      }
+    T &operator*()                         { return *m_pNode->getData();      }
     void operator++();
 };
 
@@ -108,14 +108,6 @@ template <typename T>
 void iterator<T>::operator++();
 {
     m_pNode = m_pNode->getpNext();
-}
-
-
-
-template <typename T>
-T operator[](T t);
-{
-  
 }
 
 #endif
