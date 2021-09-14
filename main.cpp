@@ -12,7 +12,8 @@ using namespace std;
 const int nElem = 20;
 
 // Test desde Mac
-// g++ -pthread -std=c++17 -o main main.cpp 
+// g++ -pthread -std=c++17 -o main main.cpp
+
 int main()
 {
   TX vect[nElem] = {5,30,40, 7,80, 90, 3,25, 54,47, 
