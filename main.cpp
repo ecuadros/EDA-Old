@@ -13,6 +13,7 @@ const int nElem = 20;
 
 // Test desde Mac
 // g++ -pthread -std=c++17 -o main main.cpp
+// COmentario extra de Mac
 int main()
 {
   TX vect[nElem] = {5,30,40, 7,80, 90, 3,25, 54,47, 
