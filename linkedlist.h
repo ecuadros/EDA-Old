@@ -45,8 +45,9 @@ class LinkedList
         iterator(iterator &other) 
               : m_pList(other.m_pList), m_pNode(other.m_pNode){}
         iterator(iterator &&other) // Move constructor
-              : m_pList(other.m_pList), m_pNode(other.m_pNode)
-              { other.m_pList = nullptr; other.m_pNode = nullptr;   }
+              { m_pList = std::move(other.m_pList); //other.m_pList = nullptr; 
+                m_pNode = std::move(other.m_pNode); //other.m_pNode = nullptr;
+              }
         iterator operator=(iterator &iter);
         bool operator==(iterator iter)   { return m_pNode == iter.m_pNode; }
         bool operator!=(iterator iter)   { return m_pNode != iter.m_pNode; }
