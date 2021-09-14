@@ -1,4 +1,6 @@
 #include <iostream>
+#include <vector>
+
 #include "type.h"
 #include "stack.h"
 #include "queue.h"
@@ -9,6 +11,8 @@ using namespace std;
 
 const int nElem = 20;
 
+// Test desde Mac
+// g++ -pthread -std=c++17 -o main main.cpp 
 int main()
 {
   TX vect[nElem] = {5,30,40, 7,80, 90, 3,25, 54,47, 
@@ -34,6 +38,7 @@ int main()
   *px += 20;
   cout << x << endl;*/
 
+  vector<TX> v1;
   int z = 5;
   LinkedList<TX> mylist;
   for(auto x=0; x<10; x++)
