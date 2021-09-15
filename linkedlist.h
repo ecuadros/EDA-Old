@@ -1,6 +1,6 @@
-#ifndef __LINKEDLIST_H__  // # es una DIRECTIVAs al PreCOMPILADOR
+#ifndef __LINKEDLIST_H__  
 #define __LINKEDLIST_H__ 
-#include <cassert>//Leonardo
+#include <cassert>
 using namespace std;
 
 template <typename T>
@@ -22,8 +22,8 @@ class LinkedList
     Node    *m_pHead = nullptr, 
             *m_pTail = nullptr;
     size_t   m_size  = 0;
+
   public:
-    // LinkedList() {}
     void    insert_at_head(T elem);
     void    insert_at_tail(T elem);
     T       PopHead();
@@ -32,11 +32,9 @@ class LinkedList
 
     ostream & print(ostream &os);
     T &operator[](size_t pos); 
-    
-    //agregar class iterator dentro de linkedlist by jose terrones
+  
     class iterator 
     {private:
-        // using Node = typename LinkedList<T>::Node;
         LinkedList<T> *m_pList;
         LinkedList<T>::Node *m_pNode;
     public:
@@ -44,9 +42,9 @@ class LinkedList
               : m_pList(pList), m_pNode(pNode) {}
         iterator(iterator &other) 
               : m_pList(other.m_pList), m_pNode(other.m_pNode){}
-        iterator(iterator &&other) // Move constructor
-              { m_pList = std::move(other.m_pList); //other.m_pList = nullptr; 
-                m_pNode = std::move(other.m_pNode); //other.m_pNode = nullptr;
+        iterator(iterator &&other) 
+              { m_pList = std::move(other.m_pList);  
+                m_pNode = std::move(other.m_pNode); 
               }
         iterator operator=(iterator &iter);
         bool operator==(iterator iter)   { return m_pNode == iter.m_pNode; }
