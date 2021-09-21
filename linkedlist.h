@@ -17,15 +17,21 @@ class LinkedList
       T        &getDataRef()             {   return m_data;    }
       void      setpNext(Node *pNext)    {   m_pNext = pNext;  }
       Node     *getpNext()               {   return m_pNext;   }
+      Node    *&getpNextRef()            {   return m_pNext;   }
   };
   private:
     Node    *m_pHead = nullptr, 
             *m_pTail = nullptr;
     size_t   m_size  = 0;
+    void internal_insert(Node *&rpPrev, T &elem);
   public:
     // LinkedList() {}
     void    insert_at_head(T elem);
     void    insert_at_tail(T elem);
+    void    insert_2(T elem);
+
+    void insert(T elem)
+    {   internal_insert(m_pHead, elem);   }
     T       PopHead();
     size_t  size()  const       { return m_size;       }
     bool    empty() const       { return size() == 0;  }
@@ -45,8 +51,10 @@ class LinkedList
         iterator(iterator &other) 
               : m_pList(other.m_pList), m_pNode(other.m_pNode){}
         iterator(iterator &&other) // Move constructor
-              { m_pList = std::move(other.m_pList); //other.m_pList = nullptr; 
-                m_pNode = std::move(other.m_pNode); //other.m_pNode = nullptr;
+              { // m_pList = other.m_pList;  other.m_pList = nullptr;
+                m_pList = move(other.m_pList); // 
+                // m_pNode = other.m_pNode;  other.m_pNode = nullptr;
+                m_pNode = move(other.m_pNode);
               }
         iterator operator=(iterator &iter);
         bool operator==(iterator iter)   { return m_pNode == iter.m_pNode; }
@@ -82,6 +90,40 @@ void LinkedList<T>::insert_at_tail(T elem)
     if(!m_pHead)
     { m_pHead = pNew;   }
     m_size++;
+}
+
+template <typename T>
+void LinkedList<T>::insert_2(T elem)
+{
+    // Insercion en la cabeza
+    if(!m_pHead || m_pHead->getData() > elem )
+    {
+      Node *pNew = new Node(elem, m_pHead);
+      m_pHead = pNew;
+    }
+    else // Aqui hay que buscar su posicion e insertarlo
+    {
+      Node **pTmp = &m_pHead;
+      while(*pTmp && elem > (*pTmp)->getData())
+      {
+        pTmp = &(*pTmp)->getpNextRef();
+      }
+      Node *pNew = new Node(elem, *pTmp);
+      *pTmp = pNew; // Error !!! se esta modificandop el pTmp y 
+                   // no el puntero del nodo anterior
+    }
+}
+// internal_insert(m_pHead, elem);
+template <typename T>
+void LinkedList<T>::internal_insert(Node *&rpPrev, T &elem)
+{   
+  if(!rpPrev || rpPrev->getData() > elem )
+  {
+    Node *pNew = new Node(elem, rpPrev);
+    rpPrev = pNew;
+  }
+  else
+    internal_insert(rpPrev->getpNextRef(), elem);
 }
 
 template <typename T>
