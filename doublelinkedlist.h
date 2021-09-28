@@ -58,10 +58,8 @@ class DoubleLinkedList
         general_iterator(general_iterator &other) 
               : m_pList(other.m_pList), m_pNode(other.m_pNode){}
         general_iterator(general_iterator &&other) // Move constructor
-              { // m_pList = other.m_pList;  other.m_pList = nullptr;
-               m_pList = move(other.m_pList); // 
-                // m_pNode = other.m_pNode;  other.m_pNode = nullptr;
-               m_pNode = move(other.m_pNode);
+              {   m_pList = move(other.m_pList);
+                  m_pNode = move(other.m_pNode);
               }
         general_iterator operator=(general_iterator &iter);
         bool operator==(general_iterator iter)   { return m_pNode == iter.m_pNode; }
