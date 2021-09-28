@@ -4,7 +4,7 @@
 #include "type.h"
 #include "stack.h"
 #include "queue.h"
-#include "linkedlist.h"
+#include "doublelinkedlist.h"
 #include "operators.h"
 #include "operacion.h"
 
@@ -62,13 +62,19 @@ void fx(TX &x)
 void inc(TX &x)
 {  ++x; }
 
+// #1
 template <typename Container, typename F>
-void recorrer(Container &container, F fobj)
+void recorrer(Container &container, F ope)
 {
   typename Container::iterator iter = container.begin();
   for(; iter != container.end() ; ++iter)
-      fobj(*iter);
+      ope(*iter);
 }
+
+// TODO implementar el recorrer inverso
+// # 2
+
+// TODO generalizar el recorrer normal y el recorrer inverso
 
 template <typename Container>
 void recorrer(Container &container)
@@ -90,16 +96,16 @@ void demoLinkedList()
 {
   vect[10] = 53;
   int z = 5;
-  LinkedList<TX> mylist;
+  DoubleLinkedList<TX> mylist;
   // LinkedList<string> myliststring;
   for(auto x=0; x<10; x++)
-  {   mylist.insert_at_tail(vect[x]);
+  {   mylist.push_back(vect[x]);
       cout << mylist << " ." <<endl;
   }
   cout << endl;
 
   for(auto x=10; x< nElem; x++)
-  {   mylist.insert_at_head(vect[x]);
+  {   mylist.push_front(vect[x]);
       cout << mylist << endl;
   }
   
@@ -161,7 +167,7 @@ void demoQueue()
 
 void demoLinkedListSorted2()
 {
-  LinkedList<TX> mylist;
+  DoubleLinkedList<TX> mylist;
   // LinkedList<string> myliststring;
   for(auto x=0; x<nElem; x++)
   {   cout << "> " << vect[x] << endl; 
@@ -173,13 +179,15 @@ void demoLinkedListSorted2()
 
 void demoLinkedListSorted()
 {
-  LinkedList<TX> mylist;
+  DoubleLinkedList<TX> mylist;
   // LinkedList<string> myliststring;
+  
   for(auto x=0; x<nElem; x++)
   {   cout << "> " << vect[x] << endl; 
       mylist.insert(vect[x]);
       recorrer(mylist, fx);  cout << endl;
   }
+  
   cout << endl;
 }
 

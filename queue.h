@@ -2,7 +2,7 @@
 #define __QUEUE_H__
 
 #include <iostream>
-#include "linkedlist.h"
+#include "doublelinkedlist.h"//Joaquin Farfan
 
 using namespace std;
 
@@ -10,7 +10,7 @@ template <typename T>
 class Queue
 {
   private:
-    LinkedList<T> m_list;
+    DoubleLinkedList<T> m_list; //jose terrones
     
   public:
     Queue();
