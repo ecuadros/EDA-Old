@@ -46,63 +46,53 @@ class DoubleLinkedList
     ostream & print(ostream &os);
     T &operator[](size_t pos); 
     
-    //agregar class iterator dentro de linkedlist by jose terrones
-    class iterator 
-    {private:
+    class general_iterator
+    {
+      protected:
         // using Node = typename DoubleLinkedList<T>::Node;
         DoubleLinkedList<T> *m_pList;
         DoubleLinkedList<T>::Node *m_pNode;
-    public:
-        iterator(DoubleLinkedList<T> *pList, DoubleLinkedList<T>::Node *pNode)
-              : m_pList(pList), m_pNode(pNode) {}
-        iterator(iterator &other) 
+      public:
+        general_iterator(DoubleLinkedList<T> *pList, DoubleLinkedList<T>::Node *pNode)
+                        : m_pList(pList), m_pNode(pNode) {}
+        general_iterator(general_iterator &other) 
               : m_pList(other.m_pList), m_pNode(other.m_pNode){}
-        iterator(iterator &&other) // Move constructor
+        general_iterator(general_iterator &&other) // Move constructor
               { // m_pList = other.m_pList;  other.m_pList = nullptr;
                m_pList = move(other.m_pList); // 
                 // m_pNode = other.m_pNode;  other.m_pNode = nullptr;
                m_pNode = move(other.m_pNode);
               }
-        iterator operator=(iterator &iter);
-        bool operator==(iterator iter)   { return m_pNode == iter.m_pNode; }
-        bool operator!=(iterator iter)   { return m_pNode != iter.m_pNode; }
-        T &operator*()                   { return m_pNode->getDataRef();   }
-        iterator operator++();
-        iterator operator++(int );
+        general_iterator operator=(general_iterator &iter);
+        bool operator==(general_iterator iter)   { return m_pNode == iter.m_pNode; }
+        bool operator!=(general_iterator iter)   { return m_pNode != iter.m_pNode; }
+        T &operator*()                           { return m_pNode->getDataRef();   }
+        DoubleLinkedList<T>::Node *&  getNodePtrRef() { return m_pNode;   }
     };
-    iterator begin() { iterator iter(this, m_pHead);
-                      return iter;
-                     }
-    iterator end()   { iterator iter(this, nullptr);
-                        return iter;
-                      }
-    class reverse_iterator 
-    {private:
-        // using Node = typename DoubleLinkedList<T>::Node;
-        DoubleLinkedList<T> *m_pList;
-        DoubleLinkedList<T>::Node *m_pNode;
+    //agregar class iterator dentro de linkedlist by jose terrones
+    class iterator : public general_iterator
+    {
+    public:
+        iterator(DoubleLinkedList<T> *pList, DoubleLinkedList<T>::Node *pNode)
+              :  general_iterator(pList, pNode) {}
+        iterator operator++() { general_iterator::m_pNode = general_iterator::m_pNode->getpNext();  
+                                return *this;
+                              }
+    };
+    iterator begin() { iterator iter(this, m_pHead);    return iter;    }
+    iterator end()   { iterator iter(this, nullptr);    return iter;    }
+
+    class reverse_iterator : public general_iterator
+    {
     public:
         reverse_iterator(DoubleLinkedList<T> *pList, DoubleLinkedList<T>::Node *pNode)
-              : m_pList(pList), m_pNode(pNode) {}
-        reverse_iterator(reverse_iterator &other) 
-              : m_pList(other.m_pList), m_pNode(other.m_pNode){}
-        reverse_iterator(reverse_iterator &&other) // Move constructor
-              {   m_pList = move(other.m_pList); // 
-                  m_pNode = move(other.m_pNode);
-              }
-        reverse_iterator operator=(reverse_iterator &iter);
-        bool operator==(reverse_iterator iter)   { return m_pNode == iter.m_pNode; }
-        bool operator!=(reverse_iterator iter)   { return m_pNode != iter.m_pNode; }
-        T &operator*()                   { return m_pNode->getDataRef();   }
-        reverse_iterator operator++();
+              :  general_iterator(pList, pNode) {}
+        reverse_iterator operator++(){  general_iterator::m_pNode = general_iterator::m_pNode->getpPrev();
+                                        return *this;
+                                     }
     };
-    reverse_iterator rbegin() { reverse_iterator iter(this, m_pTail);
-                                return iter;
-                              }
-    
-    reverse_iterator rend()   { reverse_iterator iter(this, nullptr);
-                                return iter;
-                              }
+    reverse_iterator rbegin() { reverse_iterator iter(this, m_pTail); return iter; }
+    reverse_iterator rend()   { reverse_iterator iter(this, nullptr); return iter; }
 };
 
 //Leonardo, Ricardo, Miguel Ucañay,Jesus,carlos daniel
@@ -163,11 +153,16 @@ void DoubleLinkedList<T>::internal_insert(Node *&rpPrev, T &elem)
   if(!rpPrev || rpPrev->getData() > elem )
   {
     Node *pNew = new Node(elem, rpPrev);
-    if(rpPrev){//para verificar que no haya null
+    if(rpPrev)  //para verificar que no haya null
+    {
       pNew->setpPrev(rpPrev->getpPrev());// 
       rpPrev->setpPrev(pNew);
     }
+    else
+      pNew->setpPrev(m_pTail);
     rpPrev = pNew;
+    if( !pNew->getpNext() ) // Es el ultimo
+      m_pTail = pNew;
     m_size++;
   }
   else
@@ -214,17 +209,4 @@ ostream &DoubleLinkedList<T>::print(ostream &os)
   return os;
 }
 
-template <typename T>
-typename DoubleLinkedList<T>::iterator DoubleLinkedList<T>::iterator::operator++()
-{
-    m_pNode = m_pNode->getpNext();
-    return *this; 
-}
-
-template <typename T>
-typename DoubleLinkedList<T>::reverse_iterator DoubleLinkedList<T>::reverse_iterator::operator++()
-{
-    m_pNode = m_pNode->getpPrev();
-    return *this; 
-}
 #endif

@@ -11,7 +11,7 @@
 using namespace std;
 
 const int nElem = 20;
-TX vect[nElem] = {5,30,40, 7,80, 90, 3,25, 54,47, 
+TX vect[nElem] = {5,30,40, 7,80, 90, 37,25, 54,47, 
                     3, 6, 12, 8, 25, 27, 19, 83, 9, 17};
 
 // Test desde Mac
@@ -62,19 +62,28 @@ void fx(TX &x)
 void inc(TX &x)
 {  ++x; }
 
+template <typename Iterator, typename F>
+void recorrer(Iterator ItBegin, Iterator ItEnd, F ope)
+{
+  Iterator iter = ItBegin;
+  for(; iter != ItEnd ; ++iter)
+      ope(*iter);
+}
+
 // #1
 template <typename Container, typename F>
 void recorrer(Container &container, F ope)
-{
-  typename Container::iterator iter = container.begin();
-  for(; iter != container.end() ; ++iter)
-      ope(*iter);
+{ recorrer(container.begin(), container.end(), ope);
 }
 
 // TODO implementar el recorrer inverso
 // # 2
+template <typename Container, typename F>
+void recorrer_inverso(Container &container, F ope)
+{ recorrer(container.rbegin(), container.rend(), ope);
+}
 
-// TODO generalizar el recorrer normal y el recorrer inverso
+
 
 template <typename Container>
 void recorrer(Container &container)
@@ -185,10 +194,11 @@ void demoLinkedListSorted()
   for(auto x=0; x<nElem; x++)
   {   cout << "> " << vect[x] << endl; 
       mylist.insert(vect[x]);
-      recorrer(mylist, fx);  cout << endl;
   }
-  
-  cout << endl;
+  cout << "Lista en orden: ";
+  recorrer(mylist, fx);  cout << endl;
+  cout << "Lista invertida: ";
+  recorrer_inverso(mylist, fx);  cout << endl;
 }
 
 int main()
