@@ -3,6 +3,8 @@
 #include <cassert>//Leonardo
 using namespace std;
 
+CreateBridge(Node *&pParent, Node *pNew, pNew->getpNextRef())
+
 // Falta Traits
 template <typename T>
 class LinkedList
@@ -10,7 +12,7 @@ class LinkedList
   class NodeLE
   { protected:
       T       m_data;
-      NodeLE   *m_pNext//
+      NodeLE   *m_pNext;//
     public:
       // TODO: Completar
       NodeLE(T data, NodeLE *pNext = nullptr) 
@@ -26,15 +28,14 @@ class LinkedList
     NodeLE    *m_pHead = nullptr, 
               *m_pTail = nullptr;
     size_t   m_size  = 0;
-    void internal_insert(NodeLE *&rpPrev, T &elem);
+    NodeLE *&internal_insert(NodeLE *&rpPrev, T &elem);
   public:
     // LinkedList() {}
     void    push_front(T elem); // TODO: push_front//changing names Jesus; carlos daniel, Miguel Ucañay; Christian Rivera,joaquin
     void    push_back(T elem); // TODO: push_back//changing names Jesus; carlos daniel, Miguel Ucañay; Christian Rivera,joaquin
     void    insert_2(T elem);
 
-    void insert(T elem)
-    {   internal_insert(m_pHead, elem);   }
+    void insert(T elem);
     T       PopHead();
     size_t  size()  const       { return m_size;       }
     bool    empty() const       { return size() == 0;  }
@@ -95,7 +96,7 @@ void LinkedList<T>::push_front(T elem)
 template <typename T>
 void LinkedList<T>::push_back(T elem)
 {
-    NodeLE *pNew = new NodeLE(elem, nullptr, m_pTail); // TODO
+    NodeLE *pNew = CreateNode(elem, nullptr);
     if(m_pTail)
     {  m_pTail->setpNext(pNew);
     }
@@ -128,27 +129,36 @@ void LinkedList<T>::insert_2(T elem)
     }
 }
 
-//Leonardo
 template <typename T>
-void LinkedList<T>::internal_insert(NodeLE *&rpPrev, T &elem)
+void LinkedList<T>::insert(T elem)
+{   
+    NodeLE *&pParent = findPrev(m_pHead, elem);
+    NodeLE *pNew = CreateNode(elem);
+    CreateBridge(pParent, pNew, pNew->getpNextRef());
+}
+
+template <typename T>
+NodeLE *&LinkedList<T>::findPrev(NodeLE *&rpPrev, T &elem)
+{   
+  if(!rpPrev || rpPrev->getData() > elem )
+     return findPrev(pParent->getpNextRef(), elem);
+  return rpPrev;
+}
+
+template <typename T>
+NodeLE *&LinkedList<T>::internal_insert(NodeLE *&rpPrev, T &elem)
 {   
   if(!rpPrev || rpPrev->getData() > elem )
   {
-    NodeLE *pNew = new NodeLE(elem, rpPrev);
-    if(rpPrev)  //para verificar que no haya null
-    {
-      pNew->setpPrev(rpPrev->getpPrev());// 
-      rpPrev->setpPrev(pNew);
-    }
-    else
-      pNew->setpPrev(m_pTail);
+    NodeLE *pNew = CreateNode(elem, rpPrev);
     rpPrev = pNew;
     if( !pNew->getpNext() ) // Es el ultimo
       m_pTail = pNew;
     m_size++;
+    return rpPrev;
   }
   else
-    internal_insert(rpPrev->getpNextRef(), elem);
+    return internal_insert(rpPrev->getpNextRef(), elem);
 }
 
 //Leonardo

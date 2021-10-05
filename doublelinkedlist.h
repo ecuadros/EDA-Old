@@ -9,7 +9,7 @@ using namespace std;
 template <typename T>
 class DoubleLinkedList : public LinkedList<T>
 {
-  class NodeDLL : public LinkedList<T>::NodeLE
+  class NodeDLL : public NodeLE
   { private:
       NodeDLL   *m_pPrev;
     public:
@@ -25,9 +25,11 @@ class DoubleLinkedList : public LinkedList<T>
   public:
     // DoubleLinkedList() {}
     void    push_front(T elem); // TODO: push_front//changing names Jesus; carlos daniel, Miguel Ucañay; Christian Rivera,joaquin
-    void    push_back(T elem); // TODO: push_back//changing names Jesus; carlos daniel, Miguel Ucañay; Christian Rivera,joaquin
-    void    insert_2(T elem);
+    void    push_back(T elem); // TODO: push_back//changing names Jesus; carlos daniel,
 
+    void insert(T elem);
+    NodeLE *internal_insert(NodeLE *&rpPrev, T &elem);
+    // Aqui
     T       PopHead();
     virtual NodeLE *CreateNode(T &data, NodeLE *pNext){ return new NodeDLL(data, pNext); }
 
@@ -97,14 +99,24 @@ void DoubleLinkedList<T>::push_back(T elem)
     LinkedList<T>::push_back(elem);
     m_pTail->setpPrev(pTail);
 }
+ 
+template <typename T>
+void LinkedList<T>::insert(T elem)
+{   
+    NodeLE *&pParent = findPrev(m_pHead, elem);
+    NodeLE *pNew = CreateNode(elem);
+    CreateBridge(pParent, pNew, pNew->getpNextRef());
+    CreateBridge(       , pNew, pNew->getpPrevRef());
+}
 
 //Leonardo
 template <typename T>
-void DoubleLinkedList<T>::internal_insert(NodeDLL *&rpPrev, T &elem)
-{   
+NodeLE *DoubleLinkedList<T>::internal_insert(NodeDLL *&rpPrev, T &elem)
+{  
+   NodeDLL *pNew = LinkedList<T>::internal_insert(rpPrev);
   if(!rpPrev || rpPrev->getData() > elem )
   {
-    NodeDLL *pNew = new NodeDLL(elem, rpPrev);
+    NodeDLL *pNew = CreateNode(elem, rpPrev);
     if(rpPrev)  //para verificar que no haya null
     {
       pNew->setpPrev(rpPrev->getpPrev());// 
