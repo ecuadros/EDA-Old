@@ -3,76 +3,96 @@
 #include <cassert>
 using namespace std;
 
+
 template <typename T>
 class LinkedList
-{
-  class Node
-  { private:
+{protected:
+  class NodeLE
+  { protected:
       T       m_data;
-      Node   *m_pNext;
+      NodeLE   *m_pNext;
     public:
-      Node(T data, Node *pNext = nullptr) : m_data(data), m_pNext(pNext)
+      // TODO: Completar
+      NodeLE(T data, NodeLE *pNext = nullptr) 
+          : m_data(data), m_pNext(pNext)
       {};
       T         getData()                {   return m_data;    }
       T        &getDataRef()             {   return m_data;    }
-      void      setpNext(Node *pNext)    {   m_pNext = pNext;  }
-      Node     *getpNext()               {   return m_pNext;   }
+      void      setpNext(NodeLE *pNext)    {   m_pNext = pNext;  }
+      NodeLE     *getpNext()               {   return m_pNext;   }
+      NodeLE    *&getpNextRef()            {   return m_pNext;   }
   };
   private:
-    Node    *m_pHead = nullptr, 
-            *m_pTail = nullptr;
+    NodeLE    *m_pHead = nullptr, 
+              *m_pTail = nullptr;
     size_t   m_size  = 0;
-
+    NodeLE *&internal_insert(NodeLE *&rpPrev, T &elem);
   public:
-    void    insert_at_head(T elem);
-    void    insert_at_tail(T elem);
+    
+    void    push_front(T elem); 
+    void    push_back(T elem); 
+    void    insert_2(T elem);
+
+    void insert(T elem);
     T       PopHead();
     size_t  size()  const       { return m_size;       }
     bool    empty() const       { return size() == 0;  }
 
     ostream & print(ostream &os);
     T &operator[](size_t pos); 
-  
-    class iterator 
-    {private:
+    
+    virtual NodeLE *CreateNode(T &data, NodeLE *pNext){ return new NodeLE(data, pNext); }
+
+    template <typename C>
+    class general_iterator
+    {
+      protected:
         LinkedList<T> *m_pList;
-        LinkedList<T>::Node *m_pNode;
-    public:
-        iterator(LinkedList<T> *pList, LinkedList<T>::Node *pNode)
-              : m_pList(pList), m_pNode(pNode) {}
-        iterator(iterator &other) 
+        LinkedList<T>::NodeLE *m_pNode;
+      public:
+        general_iterator(LinkedList<T> *pList, LinkedList<T>::NodeLE *pNode)
+                        : m_pList(pList), m_pNode(pNode) {}
+        general_iterator(general_iterator &other) 
               : m_pList(other.m_pList), m_pNode(other.m_pNode){}
-        iterator(iterator &&other) 
-              { m_pList = std::move(other.m_pList);  
-                m_pNode = std::move(other.m_pNode); 
+        general_iterator(general_iterator &&other) // Move constructor
+              {   m_pList = move(other.m_pList);
+                  m_pNode = move(other.m_pNode);
               }
-        iterator operator=(iterator &iter);
-        bool operator==(iterator iter)   { return m_pNode == iter.m_pNode; }
-        bool operator!=(iterator iter)   { return m_pNode != iter.m_pNode; }
-        T &operator*()                   { return m_pNode->getDataRef();   }
-        iterator operator++();
-        iterator operator++(int );
+        C operator=(C &iter);
+        bool operator==(C iter)   { return m_pNode == iter.m_pNode; }
+        bool operator!=(C iter)   { return m_pNode != iter.m_pNode; }
+        T &operator*()            { return m_pNode->getDataRef();   }
+        LinkedList<T>::NodeLE *&  getNodePtrRef() { return m_pNode;   }
     };
-    iterator begin() { iterator iter(this, m_pHead);
-                      return iter;
-                     }
-    iterator end()   { iterator iter(this, nullptr);
-                        return iter;
-                      }
+    
+    class iterator : public general_iterator<iterator>
+    {
+    public:
+        iterator(LinkedList<T> *pList, LinkedList<T>::NodeLE *pNode)
+              :  general_iterator<iterator>(pList, pNode) {}
+        iterator operator++() { general_iterator<iterator>::m_pNode = general_iterator<iterator>::m_pNode->getpNext();  
+                                return *this;
+                              }
+    };
+    iterator begin() { iterator iter(this, m_pHead);    return iter;    }
+    iterator end()   { iterator iter(this, nullptr);    return iter;    }
 };
 
+
 template <typename T>
-void LinkedList<T>::insert_at_head(T elem)
+void LinkedList<T>::push_front(T elem)
 {
-  Node *pNew = new Node(elem, m_pHead);
+  NodeLE *pNew = CreateNode(elem);
+  pNew->setpNext(m_pHead);
   m_pHead = pNew;
   m_size++;
 }
 
+
 template <typename T>
-void LinkedList<T>::insert_at_tail(T elem)
+void LinkedList<T>::push_back(T elem)
 {
-    Node *pNew = new Node(elem);
+    NodeLE *pNew = new NodeLE(elem, nullptr, m_pTail); // TODO
     if(m_pTail)
     {  m_pTail->setpNext(pNew);
     }
@@ -82,12 +102,70 @@ void LinkedList<T>::insert_at_tail(T elem)
     m_size++;
 }
 
+
+template <typename T>
+void LinkedList<T>::insert_2(T elem)
+{
+    
+    if(!m_pHead || m_pHead->getData() > elem )
+    {
+      NodeLE *pNew = new NodeLE(elem, m_pHead);
+      m_pHead = pNew;
+    }
+    else 
+    {
+      NodeLE **pTmp = &m_pHead;
+      while(*pTmp && elem > (*pTmp)->getData())
+      {
+        pTmp = &(*pTmp)->getpNextRef();
+      }
+      NodeLE *pNew = new NodeLE(elem, *pTmp);
+      *pTmp = pNew; 
+                   
+    }
+}
+
+template <typename T>
+void LinkedList<T>::insert(T elem)
+{   
+    NodeLE *&pParent = findPrev(m_pHead, elem);
+    NodeLE *pNew = CreateNode(elem);
+    CreateBridge(pParent, pNew, pNew->getpNextRef());
+}
+
+template <typename T>
+typename LinkedList <T>
+NodeLE *&LinkedList<T>::findPrev(NodeLE *&rpPrev, T &elem)
+{   
+  if(!rpPrev || rpPrev->getData() > elem )
+     return findPrev(pParent->getpNextRef(), elem);
+  return rpPrev;
+}
+
+template <typename T>
+NodeLE *&LinkedList<T>::internal_insert(NodeLE *&rpPrev, T &elem)
+{   
+  if(!rpPrev || rpPrev->getData() > elem )
+  {
+    NodeLE *pNew = CreateNode(elem, rpPrev);
+    rpPrev = pNew;
+    if( !pNew->getpNext() ) 
+      m_pTail = pNew;
+    m_size++;
+    return rpPrev;
+  }
+  else
+    return internal_insert(rpPrev->getpNextRef(), elem);
+}
+
+
 template <typename T>
 T LinkedList<T>::PopHead()
 {
     if(m_pHead)
     {
-        Node *pNode = m_pHead;
+        NodeLE *pNode = m_pHead;
+        
         T data = pNode->getData();
         m_pHead = m_pHead->getpNext();
         delete pNode;
@@ -101,7 +179,7 @@ template <typename T>
 T &LinkedList<T>::operator[](size_t pos)
 {
   assert(pos <= size());
-  Node *pTmp = m_pHead;
+  NodeLE *pTmp = m_pHead;
   for(auto i= 0 ; i < pos ; i++)
     pTmp = pTmp->getpNext();
   return pTmp->getDataRef();
@@ -110,20 +188,13 @@ T &LinkedList<T>::operator[](size_t pos)
 template <typename T>
 ostream &LinkedList<T>::print(ostream &os)
 {
-  Node *pNode = m_pHead;
+  NodeLE *pNode = m_pHead;
   while(pNode)
   {
     os << pNode->getData() << ", ";
     pNode = pNode->getpNext();
   }
   return os;
-}
-
-template <typename T>
-typename LinkedList<T>::iterator LinkedList<T>::iterator::operator++()
-{
-    m_pNode = m_pNode->getpNext();
-    return *this; 
 }
 
 #endif
